@@ -75,8 +75,9 @@ public sealed partial class VoiceMaskNameChangeWindow : FancyWindow
         {
             var id = barkVoices[i].ID;
             var displayName = Loc.GetString($"voice-id-{id}");
-            BarkVoiceSelector.AddItem(displayName, i);
-            BarkVoiceSelector.SetItemMetadata(i, id);
+            var nextId = BarkVoiceSelector.ItemCount;
+            BarkVoiceSelector.AddItem(displayName, nextId);
+            BarkVoiceSelector.SetItemMetadata(nextId, id);
         }
         BarkVoiceSelector.OnItemSelected += args => { BarkVoiceSelector.SelectId(args.Id); SendBarkUpdate(); };
 
