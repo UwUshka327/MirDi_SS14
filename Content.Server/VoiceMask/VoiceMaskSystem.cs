@@ -184,7 +184,7 @@ public sealed partial class VoiceMaskSystem : EntitySystem
             entity.Comp.OriginalVoiceId = null;
             entity.Comp.HasBackup = false;
         }
-
+        // Update identity because of possible name override
         _identity.QueueIdentityUpdate(args.Actor);
     }
 
@@ -218,7 +218,7 @@ public sealed partial class VoiceMaskSystem : EntitySystem
         if (_lock.IsLocked(uid))
             return;
 
-        if (component.EnableAction) // Goobstation
+        if (component.EnableAction) //Goobstation
             _actions.AddAction(args.Wearer, ref component.ActionEntity, component.Action, uid);
         if (!component.HasBackup && TryComp<VoiceBarkComponent>(args.Wearer, out var barkComp))
         {
@@ -258,7 +258,7 @@ public sealed partial class VoiceMaskSystem : EntitySystem
         UpdateUI((maskEntity.Value, voiceMaskComp));
     }
 
-    public void UpdateUI(Entity<VoiceMaskComponent> entity)
+    public void UpdateUI(Entity<VoiceMaskComponent> entity) // Make public by goobstation
     {
         if (_uiSystem.HasUi(entity, VoiceMaskUIKey.Key))
         {
