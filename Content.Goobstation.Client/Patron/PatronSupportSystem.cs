@@ -1,4 +1,5 @@
 using Content.Client.Lobby;
+using Content.Goobstation.Common.CCVar;
 using Content.Shared.CCVar;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controllers;
@@ -18,6 +19,19 @@ public sealed class PatronSupportUIController : UIController, IOnStateEntered<Lo
     {
         if (_hasShownThisSession)
             return;
+
+        var lastShown = _cfg.GetCVar(GoobCVars.PatronSupportLastShown);
+        var now = DateTime.UtcNow;
+
+        if (!string.IsNullOrEmpty(lastShown))
+        {
+            if (DateTime.TryParse(lastShown, out var lastShownDate))
+            {
+                var daysSinceLastShown = (now - lastShownDate).TotalDays;
+                if (daysSinceLastShown < _cfg.GetCVar(GoobCVars.PatronAskSupport))
+                    return;
+            }
+        }
 
         _hasShownThisSession = true;
         ShowSupportWindow();
@@ -43,17 +57,18 @@ public sealed class PatronSupportUIController : UIController, IOnStateEntered<Lo
 
         _supportWindow.PatreonButton.OnPressed += _ =>
         {
-            var discordLink = _cfg.GetCVar(CCVars.InfoLinksDiscord);
-            if (!string.IsNullOrEmpty(discordLink))
-                _uriOpener.OpenUri(new Uri(discordLink));
-
+            var patreonLink = _cfg.GetCVar(CCVars.InfoLinksPatreon);
+            if (!string.IsNullOrEmpty(patreonLink))
+                _uriOpener.OpenUri(new Uri(patreonLink));
             _supportWindow?.Close();
         };
 
-        _supportWindow.OpenCentered();
+        _supportWindow.OpenCenteredLeft();
     }
 
     private void OnWindowClosed()
     {
+        _cfg.SetCVar(GoobCVars.PatronSupportLastShown, DateTime.UtcNow.ToString("O"));
+        _cfg.SaveToFile();
     }
 }
